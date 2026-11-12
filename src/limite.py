@@ -44,9 +44,9 @@ def contar(chave, janela=JANELA):
 
 
 # ---- chat web (seção 4) ----
-WEB_LEADS_IP = (5, 600.0)        # leads web novos por IP em 10 min
+WEB_LEADS_IP = (500, 600.0)        # leads web novos por IP em 10 min
 WEB_LEADS_TOTAL = (30, 60.0)     # leads web novos no total, por minuto
-WEB_CHAMADOS_IP = (3, 3600.0)    # chamados abertos pelo chat web / página do lead, por IP, em 1 h
+WEB_CHAMADOS_IP = (500, 3600.0)    # chamados abertos pelo chat web / página do lead, por IP, em 1 h
 MSG_LEAD_WEB = 'Muitas conversas novas, aguarde alguns minutos.'
 MSG_CHAMADO_WEB = 'Muitos pedidos de atendimento, aguarde.'
 

@@ -39,6 +39,23 @@ ESTATICOS = {
     '/web/fontes/Sora.woff2': ('fontes/Sora.woff2', 'font/woff2'),
     '/web/fontes/Inter.woff2': ('fontes/Inter.woff2', 'font/woff2'),
     '/web/fontes/OFL.txt': ('fontes/OFL.txt', 'text/plain'),
+    '/gabinete': ('gabinete.html', 'text/html'),
+    '/prestacao': ('prestacao.html', 'text/html'),
+    '/vereadores': ('vereadores.html', 'text/html'),
+    '/web/midia/brasao.png': ('midia/brasao.png', 'image/png'),
+    '/web/midia/ver-luis-alfredo.png': ('midia/ver-luis-alfredo.png', 'image/png'),
+    '/web/midia/ver-chixolinha.png': ('midia/ver-chixolinha.png', 'image/png'),
+    '/web/midia/ver-daerlio.png': ('midia/ver-daerlio.png', 'image/png'),
+    '/web/midia/ver-dr-abrao-muniz.png': ('midia/ver-dr-abrao-muniz.png', 'image/png'),
+    '/web/midia/ver-junior-da-pesca.png': ('midia/ver-junior-da-pesca.png', 'image/png'),
+    '/web/midia/ver-chapreu.png': ('midia/ver-chapreu.png', 'image/png'),
+    '/web/midia/ver-nonato-do-sindicato.png': ('midia/ver-nonato-do-sindicato.png', 'image/png'),
+    '/web/midia/ver-lindolene-aragao.png': ('midia/ver-lindolene-aragao.png', 'image/png'),
+    '/web/midia/ver-moizaniel.png': ('midia/ver-moizaniel.png', 'image/png'),
+    '/web/midia/ver-dr-anderson-carvalho.png': ('midia/ver-dr-anderson-carvalho.png', 'image/png'),
+    '/web/midia/ver-amorim.png': ('midia/ver-amorim.png', 'image/png'),
+    '/web/midia/ver-flavio-campos.png': ('midia/ver-flavio-campos.png', 'image/png'),
+    '/web/midia/ver-uerickson-do-castelo.png': ('midia/ver-uerickson-do-castelo.png', 'image/png'),
 }
 
 
@@ -230,8 +247,8 @@ def rotear(c, metodo, rota, q, b, h):
 
     # ---- painel / equipe ----
     if rota == '/api/painel' and metodo == 'GET':
-        quem_equipe(c, h)
-        return 200, equipe.painel(c)
+        papel, colab = quem_equipe(c, h)
+        return 200, equipe.painel(c, None if papel == 'G' else colab)
     if rota.startswith('/api/equipe/'):
         papel, colab = quem_equipe(c, h)
         return rotear_equipe(c, metodo, rota[len('/api/equipe'):], q, b, papel, colab)

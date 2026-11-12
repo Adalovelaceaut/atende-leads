@@ -278,14 +278,39 @@ def ativar(c, ident):
         alertar(c, c.chamado(ident))
 
 
+def gabinete_do_chamado(c, ch):
+    """Gabinete de destino da demanda, lido das primeiras mensagens do lead (galeria/ouvidoria)."""
+    import re as _re
+    linhas = c.db.execute("SELECT texto FROM mensagens WHERE lead_id=? AND de='lead' ORDER BY id LIMIT 5",
+                          (ch['lead_id'],)).fetchall()
+    t = ' '.join((r['texto'] or '') for r in linhas).lower()
+    m = _re.search(r'vereador\(a\)\s+([a-z\u00c0-\u00ff .]+)', t)
+    if m:
+        nome = m.group(1).strip().rstrip('.')
+        for g in c.cfg.get('gabinetes', []):
+            aliases = [(g.get('vereador') or '').lower()] + [a.lower() for a in g.get('aliases', [])]
+            if any(a and a in nome for a in aliases):
+                return g['id']
+    if 'ouvidoria' in t:
+        return 'ouvidoria'
+    return None
+
+
 def elegiveis(c, ch):
     recus = set(recusaram(ch))
     exige_vinculo = tg.configurado()
+    gab = gabinete_do_chamado(c, ch)
     out = []
     for colab in equipe.ordem_de_vez(c):
         if colab in recus:
             continue
         if exige_vinculo and not equipe.vinculado(c, colab):
+            continue
+        mg = (c.membro(colab) or {}).get('gabinete')
+        if gab:
+            if mg != gab:
+                continue
+        elif mg not in (None, 'ouvidoria'):
             continue
         out.append(colab)
     return out

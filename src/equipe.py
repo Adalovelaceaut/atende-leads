@@ -96,12 +96,18 @@ def _min_status(c, r, agora):
     return minutos(r['status_desde'], agora)
 
 
-def painel(c):
+def painel(c, colab=None):
+    from . import chamados as _ch
+    mg = None
+    if colab:
+        mg = ((c.membro(colab) or {}).get('gabinete'))
     agora = c.agora()
     ordem = ordem_de_vez(c)
     proximo = ordem[0] if ordem else None
     equipe = []
     for m in c.cfg.get('equipe', []):
+        if colab and m.get('gabinete') != mg:
+            continue
         r = c.db.execute('SELECT * FROM colaboradores WHERE id=?', (m['id'],)).fetchone()
         if not r:
             continue
@@ -110,6 +116,13 @@ def painel(c):
                        'robo_por_mim': bool(r['robo_por_mim'])})
     fila = []
     for ch in c.db.execute("SELECT * FROM chamados WHERE status IN ('aguardando','alerta') ORDER BY aberto_em, id"):
+        if colab:
+            g = _ch.gabinete_do_chamado(c, ch)
+            if mg == 'ouvidoria':
+                if g not in (None, 'ouvidoria'):
+                    continue
+            elif g != mg:
+                continue
         lead = c.lead(ch['lead_id'])
         fila.append({'id': ch['id'], 'lead': primeiro_nome(lead['nome']), 'lead_id': ch['lead_id'],
                      'prioridade': ch['prioridade'], 'status': ch['status'], 'motivo': ch['motivo'],
@@ -117,7 +130,8 @@ def painel(c):
                      'ofertado_a': ch['ofertado_a'], 'nota': lead['nota'], 'silencioso': bool(ch['silencioso'])})
     atend = [{'id': ch['id'], 'lead': primeiro_nome(c.lead(ch['lead_id'])['nome']), 'lead_id': ch['lead_id'],
               'dono': ch['dono'], 'minutos': minutos(ch['assumido_em'], agora)}
-             for ch in c.db.execute("SELECT * FROM chamados WHERE status='atendendo' ORDER BY assumido_em, id")]
+             for ch in c.db.execute("SELECT * FROM chamados WHERE status='atendendo' ORDER BY assumido_em, id")
+             if not colab or ch['dono'] == colab]
     return {'equipe': equipe, 'fila': fila, 'atendendo': atend}
 
 
